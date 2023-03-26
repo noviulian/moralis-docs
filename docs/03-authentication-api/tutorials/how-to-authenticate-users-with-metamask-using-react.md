@@ -3,7 +3,7 @@ title: "How to Authenticate Users with MetaMask using React"
 slug: "../how-to-authenticate-users-with-metamask-using-react"
 ---
 
-Learn how Moralis authentication works and see how to add secure authentication to your React dapp. This tutorial covers how to 
+Learn how Moralis authentication works and see how to add secure authentication to your React dapp. This tutorial covers how to
 create full-stack Web3 authentication using the popular React framework.
 
 ## Introduction
@@ -25,7 +25,7 @@ To implement authentication using a Web3 wallet (e.g., MetaMask), we will use a 
 1. Install `wagmi` and `ethers` in your React app:
 
 ```bash npm2yarn
-npm install wagmi ethers
+npm install wagmi ethers@^5
 ```
 
 ## Initial Setup
@@ -43,22 +43,21 @@ Next we will add the providers required for `wagmi` and `next-auth`.
 2. Open `src/App.js` and add our required imports:
 
 ```javascript
-import { createClient, configureChains, WagmiConfig } from 'wagmi';
-import { publicProvider } from 'wagmi/providers/public';
+import { createClient, configureChains, WagmiConfig } from "wagmi";
+import { publicProvider } from "wagmi/providers/public";
 import { mainnet } from "wagmi/chains";
 
-import Signin from './signin';
-import User from './user';
+import Signin from "./signin";
+import User from "./user";
 ```
-
-
 
 3. We will add the client and providers, and update the routes for our `/signin` component (to be set up next):
 
 ```javascript
-const { provider, webSocketProvider } = configureChains([mainnet], [
-  publicProvider(),
-]);
+const { provider, webSocketProvider } = configureChains(
+  [mainnet],
+  [publicProvider()]
+);
 
 const client = createClient({
   provider,
@@ -68,11 +67,11 @@ const client = createClient({
 
 const router = createBrowserRouter([
   {
-    path: '/signin',
+    path: "/signin",
     element: <Signin />,
   },
   {
-    path: '/user',
+    path: "/user",
     element: <User />,
   },
 ]);
@@ -85,8 +84,6 @@ function App() {
   );
 }
 ```
-
-
 
 ## Server Setup
 
@@ -103,7 +100,7 @@ npm install cookie-parser jsonwebtoken dotenv
 - **APP_DOMAIN**: RFC 4501 DNS authority that is requesting the signing.
 - **MORALIS_API_KEY**: You can get it [here](https://admin.moralis.io/account/profile).
 - **REACT_URL**: Your app address. By default React uses [`http://localhost:3000`](http://localhost:3000).
-- **AUTH_SECRET**: Used for signing JWT tokens of users. You can put any value here or generate it on [`https://generate-secret.now.sh/32`](https://generate-secret.now.sh/32). 
+- **AUTH_SECRET**: Used for signing JWT tokens of users. You can put any value here or generate it on [`https://generate-secret.now.sh/32`](https://generate-secret.now.sh/32).
 
 ```
 APP_DOMAIN=amazing.finance
@@ -112,28 +109,26 @@ REACT_URL=http://localhost:3000
 AUTH_SECRET=1234
 ```
 
-
-
 3. Open `index.js`. We will create a `/request-message` endpoint for making requests to `Moralis.Auth` to generate a unique message (React will use this endpoint on the `/signin` page):
 
 ```javascript
 // to use our .env variables
-require('dotenv').config(); 
+require("dotenv").config();
 
 app.use(express.json());
 
 // for our server's method of setting a user session
-const cookieParser = require('cookie-parser');
-const jwt = require('jsonwebtoken');
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
 
 const config = {
   domain: process.env.APP_DOMAIN,
-  statement: 'Please sign this message to confirm your identity.',
+  statement: "Please sign this message to confirm your identity.",
   uri: process.env.REACT_URL,
   timeout: 60,
 };
 
-app.post('/request-message', async (req, res) => {
+app.post("/request-message", async (req, res) => {
   const { address, chain, network } = req.body;
 
   try {
@@ -152,12 +147,10 @@ app.post('/request-message', async (req, res) => {
 });
 ```
 
-
-
 4. We will create a `/verify` endpoint for verifying the signed message from the user. After the user successfully verifies, they will be redirected to the `/user` page where their info will be displayed:
 
 ```javascript
-app.post('/verify', async (req, res) => {
+app.post("/verify", async (req, res) => {
   try {
     const { message, signature } = req.body;
 
@@ -165,7 +158,7 @@ app.post('/verify', async (req, res) => {
       await Moralis.Auth.verify({
         message,
         signature,
-        networkType: 'evm',
+        networkType: "evm",
       })
     ).raw;
 
@@ -175,7 +168,7 @@ app.post('/verify', async (req, res) => {
     const token = jwt.sign(user, process.env.AUTH_SECRET);
 
     // set JWT cookie
-    res.cookie('jwt', token, {
+    res.cookie("jwt", token, {
       httpOnly: true,
     });
 
@@ -187,12 +180,10 @@ app.post('/verify', async (req, res) => {
 });
 ```
 
-
-
 5. We will create an `/authenticate` endpoint for checking the JWT cookie we previously set to allow the user access to the `/user` page:
 
 ```javascript
-app.get('/authenticate', async (req, res) => {
+app.get("/authenticate", async (req, res) => {
   const token = req.cookies.jwt;
   if (!token) return res.sendStatus(403); // if the user did not send a jwt token, they are unauthorized
 
@@ -205,14 +196,12 @@ app.get('/authenticate', async (req, res) => {
 });
 ```
 
-
-
 6. Lastly we will create a `/logout` endpoint for removing the cookie:
 
 ```javascript
-app.get('/logout', async (req, res) => {
+app.get("/logout", async (req, res) => {
   try {
-    res.clearCookie('jwt');
+    res.clearCookie("jwt");
     return res.sendStatus(200);
   } catch {
     return res.sendStatus(403);
@@ -220,20 +209,18 @@ app.get('/logout', async (req, res) => {
 });
 ```
 
-
-
 Your final `index.js` should look like this:
 
 ```javascript
-const Moralis = require('moralis').default;
+const Moralis = require("moralis").default;
 
-const express = require('express');
-const cors = require('cors');
-const cookieParser = require('cookie-parser');
-const jwt = require('jsonwebtoken');
+const express = require("express");
+const cors = require("cors");
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
 
 // to use our .env variables
-require('dotenv').config();
+require("dotenv").config();
 
 const app = express();
 const port = 4000;
@@ -244,20 +231,20 @@ app.use(cookieParser());
 // allow access to React app domain
 app.use(
   cors({
-    origin: 'http://localhost:3000',
+    origin: "http://localhost:3000",
     credentials: true,
   })
 );
 
 const config = {
   domain: process.env.APP_DOMAIN,
-  statement: 'Please sign this message to confirm your identity.',
+  statement: "Please sign this message to confirm your identity.",
   uri: process.env.REACT_URL,
   timeout: 60,
 };
 
 // request message to be signed by client
-app.post('/request-message', async (req, res) => {
+app.post("/request-message", async (req, res) => {
   const { address, chain, network } = req.body;
 
   try {
@@ -275,7 +262,7 @@ app.post('/request-message', async (req, res) => {
   }
 });
 
-app.post('/verify', async (req, res) => {
+app.post("/verify", async (req, res) => {
   try {
     const { message, signature } = req.body;
 
@@ -283,7 +270,7 @@ app.post('/verify', async (req, res) => {
       await Moralis.Auth.verify({
         message,
         signature,
-        networkType: 'evm',
+        networkType: "evm",
       })
     ).raw;
 
@@ -293,7 +280,7 @@ app.post('/verify', async (req, res) => {
     const token = jwt.sign(user, process.env.AUTH_SECRET);
 
     // set JWT cookie
-    res.cookie('jwt', token, {
+    res.cookie("jwt", token, {
       httpOnly: true,
     });
 
@@ -304,7 +291,7 @@ app.post('/verify', async (req, res) => {
   }
 });
 
-app.get('/authenticate', async (req, res) => {
+app.get("/authenticate", async (req, res) => {
   const token = req.cookies.jwt;
   if (!token) return res.sendStatus(403); // if the user did not send a jwt token, they are unauthorized
 
@@ -316,9 +303,9 @@ app.get('/authenticate', async (req, res) => {
   }
 });
 
-app.get('/logout', async (req, res) => {
+app.get("/logout", async (req, res) => {
   try {
-    res.clearCookie('jwt');
+    res.clearCookie("jwt");
     return res.sendStatus(200);
   } catch {
     return res.sendStatus(403);
@@ -338,20 +325,18 @@ const startServer = async () => {
 startServer();
 ```
 
-
-
 ## Bringing It All Together
 
-Now we will finish setting up our React pages to integrate with our server. 
+Now we will finish setting up our React pages to integrate with our server.
 
 1. In `src`, create a file called `signin.jsx` and add:
 
 ```javascript
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 
-import { useAccount, useConnect, useSignMessage, useDisconnect } from 'wagmi';
-import { InjectedConnector } from 'wagmi/connectors/injected';
-import axios from 'axios';
+import { useAccount, useConnect, useSignMessage, useDisconnect } from "wagmi";
+import { InjectedConnector } from "wagmi/connectors/injected";
+import axios from "axios";
 
 export default function SignIn() {
   const navigate = useNavigate();
@@ -371,14 +356,14 @@ export default function SignIn() {
       connector: new InjectedConnector(),
     });
 
-    const userData = { address: account, chain: chain.id, network: 'evm' };
+    const userData = { address: account, chain: chain.id, network: "evm" };
     // making a post request to our 'request-message' endpoint
     const { data } = await axios.post(
       `${process.env.REACT_APP_SERVER_URL}/request-message`,
       userData,
       {
         headers: {
-          'content-type': 'application/json',
+          "content-type": "application/json",
         },
       }
     );
@@ -396,7 +381,7 @@ export default function SignIn() {
     );
 
     // redirect to /user
-    navigate('/user');
+    navigate("/user");
   };
 
   return (
@@ -407,8 +392,6 @@ export default function SignIn() {
   );
 }
 ```
-
-
 
 2. In `src`, create a file called `user.jsx` and add:
 
@@ -458,8 +441,6 @@ export default function User() {
 }
 ```
 
-
-
 ## Testing the MetaMask Wallet Connector
 
 In your teminal run `npm run start` and visit [`http://localhost:3000/signin`](http://localhost:3000/signin) to test the authentication.
@@ -477,5 +458,5 @@ In your teminal run `npm run start` and visit [`http://localhost:3000/signin`](h
 ![](/img/content/0ff471c-React_-_3.webp)
 
 - When a user authenticates, we show the user's info on the page.
-- When a user is not authenticated, we redirect to the `/signin` page. 
+- When a user is not authenticated, we redirect to the `/signin` page.
 - When a user is authenticated, we show the user's info on the page, even refreshing after the page.
