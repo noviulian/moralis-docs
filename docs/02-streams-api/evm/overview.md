@@ -82,7 +82,7 @@ Until a block is confirmed, it is possible that a re-organization of the chain m
 
 ## To get started, check the following tutorials:
 
-- [Your First Stream using NodeJS SDK](/streams-api/evm/using-node-js-sdk)
+- [Your First Stream using NodeJS SDK](/streams-api/evm/using-the-sdk)
 - [Your First Stream using WebUI](/streams-api/evm/using-webui)
 - You can also use the [Swagger Interface](https://api.moralis-streams.com/api-docs/) directly.
 

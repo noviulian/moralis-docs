@@ -531,7 +531,7 @@ export const redirects = [
   },
   {
     source: "/docs/your-first-stream-using-js-sdk",
-    destination: "/streams-api/using-node-js-sdk",
+    destination: "/streams-api/evm/using-the-sdk",
     permanent: true,
   },
   {
@@ -6255,7 +6255,7 @@ export const redirects = [
   },
   {
     source: "/streams-api/using-node-js-sdk",
-    destination: "/streams-api/evm/using-node-js-sdk",
+    destination: "/streams-api/evm/using-the-sdk",
     permanent: true,
   },
   {
