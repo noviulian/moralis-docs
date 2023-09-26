@@ -6259,6 +6259,11 @@ export const redirects = [
     permanent: true,
   },
   {
+    source: "/streams-api/evm/using-node-js-sdk",
+    destination: "/streams-api/evm/using-the-sdk",
+    permanent: true,
+  },
+  {
     source: "/streams-api/using-webui",
     destination: "/streams-api/evm/using-webui",
     permanent: true,
